@@ -1,5 +1,7 @@
 # Resilient Sync Kanban Board
 
+🚀 **Live Demo:** [kanban-resilient-sync-ungy.vercel.app](https://kanban-resilient-sync-ungy.vercel.app)
+
 A highly robust Kanban board built with React, TypeScript, and Vite. This project demonstrates advanced frontend state management, focusing on optimistic UI updates, robust error handling, and a resilient sync queue that can gracefully handle flaky network conditions.
 
 ## Key Features
