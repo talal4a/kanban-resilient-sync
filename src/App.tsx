@@ -1,6 +1,7 @@
 import { DragDropContext, Droppable, type DropResult } from '@hello-pangea/dnd';
 import { useResilientSync, type Card } from './hooks/useResilientSync';
 import { CardItem } from './components/CardItem';
+import { AddCardForm } from './components/AddCardForm';
 
 // ─── Column definitions ─────────────────────────────────────────────────────
 
@@ -13,7 +14,7 @@ const COLUMNS: { id: Card['column']; title: string; accent: string }[] = [
 // ─── App ────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const { cards, isLoading, updateCard, retrySync, deleteCard } = useResilientSync();
+  const { cards, isLoading, updateCard, retrySync, addCard, deleteCard } = useResilientSync();
 
   const onDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
@@ -120,6 +121,9 @@ export default function App() {
                         </div>
                       )}
                     </Droppable>
+
+                    {/* Add card form */}
+                    <AddCardForm column={col.id} onAdd={addCard} />
                   </section>
                 );
               })}
