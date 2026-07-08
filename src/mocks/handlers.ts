@@ -5,7 +5,7 @@ import type { Card } from '../hooks/useResilientSync';
 
 type StoredCard = Omit<Card, 'syncStatus' | 'errorMessage'>;
 
-let db: StoredCard[] = [
+const db: StoredCard[] = [
   { id: '1', title: 'Research competitors',      column: 'done'        },
   { id: '2', title: 'Design DB schema',           column: 'in-progress' },
   { id: '3', title: 'Write API documentation',   column: 'todo'        },
