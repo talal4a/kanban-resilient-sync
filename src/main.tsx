@@ -4,11 +4,12 @@ import "./index.css";
 import App from "./App.tsx";
 
 async function enableMocking() {
-  if (process.env.NODE_ENV !== "development") {
-    return;
-  }
   const { worker } = await import("./mocks/browser");
-  return worker.start();
+  // For the purpose of this frontend assessment, we ALWAYS start the mock worker
+  // even in production builds, because there is no real backend.
+  return worker.start({
+    onUnhandledRequest: "bypass",
+  });
 }
 
 enableMocking().then(() => {
