@@ -41,7 +41,7 @@ describe('useResilientSync', () => {
     server.use(
       http.put('/api/cards/:id', async ({ request }) => {
         await delay(10);
-        const body = (await request.json()) as any;
+        const body = (await request.json()) as Record<string, unknown>;
         return HttpResponse.json({ id: '1', ...body });
       })
     );
@@ -54,7 +54,6 @@ describe('useResilientSync', () => {
     });
 
     const cardId = result.current.cards[0].id;
-    const oldTitle = result.current.cards[0].title;
 
     act(() => {
       result.current.updateCard(cardId, { title: 'New Title' });
@@ -115,7 +114,7 @@ describe('useResilientSync', () => {
           return new HttpResponse(JSON.stringify({ error: 'Failed' }), { status: 500 });
         }
         // Succeed on retry
-        const body = (await request.json()) as any;
+        const body = (await request.json()) as Record<string, unknown>;
         return HttpResponse.json({ id: params.id, ...body });
       })
     );

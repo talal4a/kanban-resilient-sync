@@ -60,8 +60,14 @@ function saveToStorage(cards: Card[]): void {
  * 5. retrySync(id) re-enqueues the last operation for that card
  */
 export function useResilientSync() {
-  const [cards, setCards] = useState<Card[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // Initialize from storage if available
+  const [cards, setCards] = useState<Card[]>(() => {
+    const cached = loadFromStorage();
+    return cached || [];
+  });
+  
+  // Only loading if we didn't have cached data
+  const [isLoading, setIsLoading] = useState(() => loadFromStorage() === null);
 
   // FIFO queue of pending network requests
   const queueRef = useRef<QueueItem[]>([]);
@@ -80,11 +86,8 @@ export function useResilientSync() {
 
   // ── Load initial data ────────────────────────────────────────────────────
   useEffect(() => {
-    const cached = loadFromStorage();
-
-    if (cached && cached.length > 0) {
-      setCards(cached);
-      setIsLoading(false);
+    // If we already loaded from storage in useState, just mark as loaded and return
+    if (!isLoading) {
       didLoadRef.current = true;
       return;
     }
@@ -105,10 +108,10 @@ export function useResilientSync() {
         setIsLoading(false);
         didLoadRef.current = true;
       });
-  }, []);
+  }, [isLoading]);
 
   // ── Queue processor ──────────────────────────────────────────────────────
-  const processQueue = useCallback(() => {
+  const processQueue = useCallback(function processNext() {
     if (processingRef.current) return;
     processingRef.current = true;
 
@@ -155,7 +158,7 @@ export function useResilientSync() {
           )
         );
 
-        processQueue(); // Pick up next item
+        processNext(); // Pick up next item
       })
       .catch((err: Error) => {
         inFlightRef.current.delete(item.cardId);
@@ -173,7 +176,7 @@ export function useResilientSync() {
         );
 
         // Continue processing other cards — don't let one failure block the queue
-        processQueue();
+        processNext();
       });
   }, []);
 
@@ -215,7 +218,8 @@ export function useResilientSync() {
       );
 
       // Extract only the fields the server cares about
-      const { syncStatus: _s, errorMessage: _e, id: _id, ...payload } = card;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { syncStatus, errorMessage, id: _id, ...payload } = card;
       queueRef.current.push({ cardId: id, updates: payload });
       processQueue();
     },
